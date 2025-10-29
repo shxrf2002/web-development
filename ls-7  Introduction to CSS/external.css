@@ -1,0 +1,19 @@
+h1{
+    color:white;
+    text-align: center;
+    font-style: italic;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 200px;
+    border: 2px solid white;
+
+}
+body{
+    background-color: black;
+}
+p{
+    text-align: center;
+    font-size: 100px;
+    font-style: italic;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+}
