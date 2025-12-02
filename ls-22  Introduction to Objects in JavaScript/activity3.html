@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+   <p id="result"></p> 
+<script>
+   function findMax (){
+    var i;
+    var max=0;
+    for (i=0;i<arguments.length; i++){
+        if(arguments[i]>max){
+            max=arguments[i];
+
+        }
+    }
+    return max
+   }
+   document.getElementById("result").innerHTML=findMax(123252,234445,123456789);
+
+</script>
+</body>
+</html>
