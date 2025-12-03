@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Sum of Arguments & Trigonometric Values</h2>
+<p id="demo"></p>
+
+<script>
+
+function sumOfArguments() {
+  let sum = 0;
+  for (let i = 0; i < arguments.length; i++) {
+    sum += arguments[i];
+  }
+  return sum;
+}
+
+   document.getElementById("demo").innerHTML=sumOfArguments(123252,234445,123456789);
+
+
+
+</script>
+
+</body>
+</html>
