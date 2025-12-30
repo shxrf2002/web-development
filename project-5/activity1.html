@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Project</title>
+</head>
+<body>
+
+<p id="student1"></p>
+<p id="student2"></p>
+
+<script>
+    class Person {
+        constructor(name, year) {
+            this.name = name;
+            this.year = year;
+        }
+
+        static info() {
+            return "Student Details";
+        }
+
+ 
+        age() {
+            let date = new Date();
+            return date.getFullYear() - this.year;
+        }
+    }
+
+
+    class Student extends Person {
+        constructor(name, year, rollNo) {
+            super(name, year);
+            this.rollNo = rollNo;
+        }
+
+        display() {
+            return "My name is " + this.name +
+                   ", I was born in " + this.year +
+                   ", My age is " + this.age() +
+                   ", Roll No: " + this.rollNo;
+        }
+    }
+
+
+    let student1 = new Student("Sharaf", 2010, 101);
+    document.getElementById("student1").innerHTML =Person.info() + "<br>" + student1.display();
+
+  
+    let student2 = new Student("Haseeb", 2009, 102);
+    document.getElementById("student2").innerHTML =Person.info() + "<br>" + student2.display();
+
+</script>
+
+</body>
+</html>
+
