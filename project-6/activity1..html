@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+    <h1>randomnumber</h1>
+    <p id="randomnumber"></p>
+
+    <h1>currentdate</h1>
+    <p id="currentdate"></p>
+
+    <h1>roundedNumber</h1>
+    <p id="roundedNumber"></p> 
+
+<script>
+    let text="";
+    for(let i=1;i<=5;i++) {
+        text += Math.random() + "<br>";
+    }
+    document.getElementById("randomnumber").innerHTML=text;
+    
+    let date=new Date();
+    document.getElementById("currentdate").innerHTML=date;
+
+    let roundedRandom= Math.round(Math.random()*100);
+    document.getElementById("roundedNumber").innerHTML=roundedRandom;
+
+</script>
+</body>
+</html>
