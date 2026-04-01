@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StickerFrenzy - Create Funny Stickers</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+            min-height: 100vh;
+        }
+
+        .canvas-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.1);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        #stickerCanvas {
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            background: white;
+            cursor: crosshair;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .controls-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            height: fit-content;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .panel-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .panel-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-picker {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input[type="range"], input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="range"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .emoji-btn {
+            width: 45px;
+            height: 45px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            background: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .emoji-btn:hover {
+            transform: scale(1.1);
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tool-btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .tool-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .tool-btn.active {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            font-size: 18px;
+            padding: 18px;
+            margin-top: 20px;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, white 0%, rgba(255,255,255,0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                padding: 10px;
+                gap: 20px;
+            }
+            
+            .canvas-container {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🎨 StickerFrenzy</h1>
+            <p>Create hilarious stickers in seconds!</p>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="stickerCanvas" width="500" height="500"></canvas>
+        </div>
+
+        <div class="controls-panel">
+            <div class="panel-section">
+                <h2>🎯 Tools</h2>
+                <button class="tool-btn active" data-tool="select">✏️ Select</button>
+                <button class="tool-btn" data-tool="text">📝 Text</button>
+                <button class="tool-btn" data-tool="emoji">😎 Emoji</button>
+                <button class="tool-btn" data-tool="draw">🖌️ Draw</button>
+            </div>
+
+            <div class="panel-section">
+                <h2>🎨 Colors</h2>
+                <input type="color" class="color-picker" id="fillColor" value="#ff6b6b">
+                <input type="color" class="color-picker" id="strokeColor" value="#333">
+            </div>
+
+            <div class="panel-section">
+                <h2>📏 Size</h2>
+                <div class="input-group">
+                    <label>Font Size</label>
+                    <input type="range" id="fontSize" min="20" max="100" value="40">
+                    <span id="fontSizeValue">40px</span>
+                </div>
+                <div class="input-group">
+                    <label>Stroke Width</label>
+                    <input type="range" id="strokeWidth" min="1" max="10" value="2">
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h2>😂 Funny Emojis</h2>
+                <div class="emoji-grid">
+                    <button class="emoji-btn" data-emoji="😂">😂</button>
+                    <button class="emoji-btn" data-emoji="🤣">🤣</button>
+                    <button class="emoji-btn" data-emoji="😎">😎</button>
+                    <button class="emoji-btn" data-emoji="🥳">🥳</button>
+                    <button class="emoji-btn" data-emoji="🤪">🤪</button>
+                    <button class="emoji-btn" data-emoji="😜">😜</button>
+                    <button class="emoji-btn" data-emoji="💀">💀</button>
+                    <button class="emoji-btn" data-emoji="🔥">🔥</button>
+                    <button class="emoji-btn" data-emoji="🚀">🚀</button>
+                    <button class="emoji-btn" data-emoji="⭐">⭐</button>
+                    <button class="emoji-btn" data-emoji="🎉">🎉</button>
+                    <button class="emoji-btn" data-emoji="👑">👑</button>
+                </div>
+            </div>
+
+            <button class="tool-btn download-btn" id="downloadBtn">
+                💾 Download Sticker
+            </button>
+
+            <button class="tool-btn" id="clearBtn" style="background: #ff6b6b;">
+                🗑️ Clear All
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = new fabric.Canvas('stickerCanvas', {
+            backgroundColor: '#ffffff',
+            selection: true,
+            preserveObjectStacking: true
+        });
+
+        let currentTool = 'select';
+        let textInput = null;
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.width = particle.style.height = (Math.random() * 10 + 5) + 'px';
+                particle.style.animationDelay = Math.random() * 20 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 15) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Tool buttons
+        document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentTool = btn.dataset.tool;
+                canvas.isDrawingMode = currentTool === 'draw';
+                canvas.selection = currentTool === 'select';
+            });
+        });
+
+        // Color pickers
+        document.getElementById('fillColor').addEventListener('change', (e) => {
+            canvas.getActiveObject()?.set('fill', e.target.value);
+            canvas.renderAll();
+        });
+
+        document.getElementById('strokeColor').addEventListener('change', (e) => {
+            canvas.getActiveObject()?.set('stroke', e.target.value);
+            canvas.renderAll();
+        });
+
+        // Size controls
+        document.getElementById('fontSize').addEventListener('input', (e) => {
+            document.getElementById('fontSizeValue').textContent = e.target.value + 'px';
+            const active = canvas.getActiveObject();
+            if (active && active.type === 'text') {
+                active.set('fontSize', parseInt(e.target.value));
+                canvas.renderAll();
+            }
+        });
+
+        document.getElementById('strokeWidth').addEventListener('input', (e) => {
+            const active = canvas.getActiveObject();
+            if (active) {
+                active.set('strokeWidth', parseInt(e.target.value));
+                canvas.renderAll();
+            }
+        });
+
+        // Emoji buttons
+        document.querySelectorAll('.emoji-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (currentTool === 'emoji') {
+                    const emoji = btn.dataset.emoji;
+                    addEmoji(emoji);
+                }
+            });
+        });
+
+        function addEmoji(emoji) {
+            const text = new fabric.Text(emoji, {
+                left: 100,
+                top: 100,
+                fontFamily: 'Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif',
+                fontSize: 60,
+                fill: document.getElementById('fillColor').value,
+                stroke: document.getElementById('strokeColor').value,
+                strokeWidth: 2,
+                originX: 'center',
+                originY: 'center'
+            });
+            canvas.add(text);
+            canvas.setActiveObject(text);
+            canvas.renderAll();
+        }
+
+        // Text tool
+        canvas.on('mouse:down', (opt) => {
+            if (currentTool === 'text') {
+                const pointer = canvas.getPointer(opt.e);
+                textInput = new fabric.IText('FUNNY TEXT', {
+                    left: pointer.x,
+                    top: pointer.y,
+                    fontFamily: 'Poppins, sans-serif',
+                    fontSize: 40,
+                    fill: document.getElementById('fillColor').value,
+                    stroke: document.getElementById('strokeColor').value,
+                    strokeWidth: 2,
+                    originX: 'center',
+                    originY: 'center',
+                    fontWeight: 'bold'
+                });
+                canvas.add(textInput);
+                canvas.setActiveObject(textInput);
+                canvas.renderAll();
+                textInput.enterEditing();
+            }
+        });
+
+        // Download functionality
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1,
+                multiplier: 3
+            });
+            const link = document.createElement('a');
+            link.download = 'funny-sticker.png';
+            link.href = dataURL;
+            link.click();
+        });
+
+        // Clear canvas
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            canvas.clear();
+            canvas.backgroundColor = '#ffffff';
+            canvas.renderAll();
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                const active = canvas.getActiveObject();
+                if (active) {
+                    canvas.remove(active);
+                }
+            }
+        });
+
+        // Initialize
+        createParticles();
+        canvas.renderAll();
+
+        // Responsive canvas
+        function resizeCanvas() {
+            const canvasContainer = document.querySelector('.canvas-container');
+            const rect = canvasContainer.getBoundingClientRect();
+            const size = Math.min(rect.width - 60, rect.height - 60, 500);
+            canvas.setWidth(size);
+            canvas.setHeight(size);
+            canvas.renderAll();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+    </script>
+</body>
+</html>
